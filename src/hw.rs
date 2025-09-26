@@ -85,7 +85,7 @@ impl Gpio for MockGpio {
 
         // Update pin state
         self.pin_states.insert(pin, high);
-        
+
         Ok(())
     }
 
@@ -158,7 +158,10 @@ impl Default for MockI2c {
 impl I2c for MockI2c {
     fn write(&mut self, address: u8, data: &[u8]) -> Result<()> {
         if self.failure_addresses.contains(&address) {
-            return Err(anyhow::anyhow!("Simulated I2C failure on address 0x{:02X}", address));
+            return Err(anyhow::anyhow!(
+                "Simulated I2C failure on address 0x{:02X}",
+                address
+            ));
         }
 
         self.write_log.push((address, data.to_vec()));
@@ -167,7 +170,10 @@ impl I2c for MockI2c {
 
     fn read(&mut self, address: u8, buffer: &mut [u8]) -> Result<usize> {
         if self.failure_addresses.contains(&address) {
-            return Err(anyhow::anyhow!("Simulated I2C failure on address 0x{:02X}", address));
+            return Err(anyhow::anyhow!(
+                "Simulated I2C failure on address 0x{:02X}",
+                address
+            ));
         }
 
         if let Some(response) = self.read_responses.get(&address) {
@@ -253,10 +259,10 @@ mod tests {
     #[test]
     fn test_mock_gpio_basic_operations() {
         let mut gpio = MockGpio::new();
-        
+
         // Test write and read
         gpio.write(1, true).unwrap();
-        assert_eq!(gpio.read(1).unwrap(), true);
+        assert!(gpio.read(1).unwrap());
         assert_eq!(gpio.get_write_count(1), 1);
         assert_eq!(gpio.get_read_count(1), 1);
     }
@@ -265,10 +271,10 @@ mod tests {
     fn test_mock_gpio_scripted_responses() {
         let mut gpio = MockGpio::new();
         gpio.set_scripted_responses(2, vec![true, false, true]);
-        
-        assert_eq!(gpio.read(2).unwrap(), true);
-        assert_eq!(gpio.read(2).unwrap(), false);
-        assert_eq!(gpio.read(2).unwrap(), true);
+
+        assert!(gpio.read(2).unwrap());
+        assert!(!gpio.read(2).unwrap());
+        assert!(gpio.read(2).unwrap());
         assert_eq!(gpio.get_read_count(2), 3);
     }
 
@@ -276,7 +282,7 @@ mod tests {
     fn test_mock_gpio_failure_simulation() {
         let mut gpio = MockGpio::new();
         gpio.set_pin_failure(3);
-        
+
         assert!(gpio.write(3, true).is_err());
         assert!(gpio.read(3).is_err());
     }
@@ -284,12 +290,12 @@ mod tests {
     #[test]
     fn test_mock_i2c_operations() {
         let mut i2c = MockI2c::new();
-        
+
         // Test write
         i2c.write(0x48, &[0x01, 0x02]).unwrap();
         assert_eq!(i2c.get_write_log().len(), 1);
         assert_eq!(i2c.get_write_log()[0], (0x48, vec![0x01, 0x02]));
-        
+
         // Test read with response
         i2c.set_read_response(0x48, vec![0xAB, 0xCD]);
         let mut buffer = [0u8; 4];
@@ -302,10 +308,10 @@ mod tests {
     fn test_mock_spi_transfer() {
         let mut spi = MockSpi::new();
         spi.add_response(vec![0xFF, 0xEE]);
-        
+
         let mut data = [0x01, 0x02];
         spi.transfer(&mut data).unwrap();
-        
+
         assert_eq!(data, [0xFF, 0xEE]);
         assert_eq!(spi.get_transfer_log().len(), 1);
         assert_eq!(spi.get_transfer_log()[0], vec![0x01, 0x02]);

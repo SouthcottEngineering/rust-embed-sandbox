@@ -15,18 +15,16 @@ fn prints_version() {
 fn shows_help() {
     let mut cmd = Command::cargo_bin("my-rust-pi-app").unwrap();
     cmd.arg("--help");
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("Rust application for Raspberry Pi"));
+    cmd.assert().success().stdout(predicate::str::contains(
+        "Rust application for Raspberry Pi",
+    ));
 }
 
 #[test]
 fn healthcheck_passes() {
     let mut cmd = Command::cargo_bin("my-rust-pi-app").unwrap();
     cmd.arg("--healthcheck");
-    cmd.assert()
-        .success()
-        .code(0);
+    cmd.assert().success().code(0);
 }
 
 #[test]
