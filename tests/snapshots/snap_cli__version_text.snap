@@ -1,0 +1,5 @@
+---
+source: tests/snap_cli.rs
+expression: text
+---
+my-rust-pi-app 0.1.0

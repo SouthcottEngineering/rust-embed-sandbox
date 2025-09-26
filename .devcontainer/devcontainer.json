@@ -1,0 +1,20 @@
+{
+  "name": "Rust Pi Dev (Emu)",
+  "image": "rust:1.82",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "apt-get update && apt-get install -y qemu-user-static binfmt-support gcc-arm-linux-gnueabihf && cargo install cross cargo-nextest grcov && rustup component add llvm-tools-preview",
+  "settings": {
+    "rust-analyzer.checkOnSave.command": "clippy"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "github.copilot",
+        "ms-vscode.makefile-tools"
+      ]
+    }
+  }
+}
