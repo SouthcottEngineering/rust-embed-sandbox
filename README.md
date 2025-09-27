@@ -6,7 +6,7 @@ A comprehensive Rust development environment for Raspberry Pi with emulated hard
 
 - **Hardware Abstraction Layer**: GPIO, I2C, and SPI traits with full mock implementations for testing
 - **Comprehensive Test Suite**: Unit, integration, property-based, and snapshot tests (22 tests total)
-- **ARM Cross-Compilation**: Support for `armv7-unknown-linux-gnueabihf` and `aarch64-unknown-linux-gnu`
+- **ARM Cross-Compilation**: Support for `aarch64-unknown-linux-gnu` (64-bit ARM)
 - **QEMU Emulation**: Automated testing under ARM emulation
 - **CLI Interface**: Health checks and self-testing capabilities
 - **CI/CD Pipeline**: GitHub Actions with coverage reporting and ARM emulation
@@ -92,10 +92,8 @@ assert_eq!(gpio.get_write_count(1), 2);
 ### Cross-Compilation
 
 ```bash
-# Build for 32-bit ARM (Raspberry Pi 2/3/4)
-cargo build --target armv7-unknown-linux-gnueabihf --release
-
 # Build for 64-bit ARM (Raspberry Pi 3/4/5)
+cargo build --target aarch64-unknown-linux-gnu --release
 cargo build --target aarch64-unknown-linux-gnu --release
 ```
 
@@ -103,10 +101,10 @@ cargo build --target aarch64-unknown-linux-gnu --release
 
 ```bash
 # Run emulated ARM binary with healthcheck
-TARGET=armv7-unknown-linux-gnueabihf MODE=release ./scripts/run-emu.sh
+TARGET=aarch64-unknown-linux-gnu MODE=release ./scripts/run-emu.sh
 
 # Run tests under emulation
-TARGET=armv7-unknown-linux-gnueabihf ./scripts/test-emu.sh
+TARGET=aarch64-unknown-linux-gnu ./scripts/test-emu.sh
 ```
 
 ## CI/CD Pipeline

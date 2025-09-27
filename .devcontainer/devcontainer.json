@@ -4,7 +4,7 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "postCreateCommand": "apt-get update && apt-get install -y qemu-user-static binfmt-support gcc-arm-linux-gnueabihf && cargo install cross cargo-nextest grcov && rustup component add llvm-tools-preview",
+  "postCreateCommand": "apt-get update && apt-get install -y qemu-user-static binfmt-support gcc-aarch64-linux-gnu && cargo install cross cargo-nextest grcov && rustup component add llvm-tools-preview",
   "settings": {
     "rust-analyzer.checkOnSave.command": "clippy"
   },

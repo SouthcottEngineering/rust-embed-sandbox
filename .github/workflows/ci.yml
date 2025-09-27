@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [armv7-unknown-linux-gnueabihf, aarch64-unknown-linux-gnu]
+        target: [aarch64-unknown-linux-gnu]
     
     steps:
       - name: Checkout code
@@ -27,9 +27,8 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo dpkg --add-architecture armhf
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu lcov libc6:armhf
+          sudo apt-get install -y qemu-user-static binfmt-support gcc-aarch64-linux-gnu lcov
 
       - name: Install Rust tools
         run: |
@@ -60,20 +59,21 @@ jobs:
         run: cargo build --target ${{ matrix.target }} --release
 
       - name: Emulated healthcheck
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           export TARGET=${{ matrix.target }}
           export MODE=release
           ./scripts/run-emu.sh
 
       - name: Coverage analysis (host only)
-        if: matrix.target == 'armv7-unknown-linux-gnueabihf'
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           LLVM_PROFILE_FILE="cov-%p-%m.profraw" RUSTFLAGS="-Zinstrument-coverage" cargo test
           grcov . -s . -t lcov --binary-path target -o lcov.info --ignore "/*" --ignore "target/*"
           genhtml -o coverage lcov.info || echo "genhtml failed"
 
       - name: Enforce coverage threshold
-        if: matrix.target == 'armv7-unknown-linux-gnueabihf'
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           if [ -f lcov.info ]; then
             lines=$(lcov --summary lcov.info 2>/dev/null | grep "lines" | awk '{print $2}' | sed 's/%//' || echo "0")
@@ -89,7 +89,7 @@ jobs:
           fi
 
       - name: Upload coverage reports
-        if: matrix.target == 'armv7-unknown-linux-gnueabihf'
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report

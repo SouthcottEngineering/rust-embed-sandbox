@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET="${TARGET:-armv7-unknown-linux-gnueabihf}"
+TARGET="${TARGET:-aarch64-unknown-linux-gnu}"
 BIN="${BIN:-my-rust-pi-app}"
 MODE="${MODE:-release}"
 

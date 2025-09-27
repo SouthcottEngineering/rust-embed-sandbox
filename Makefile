@@ -18,7 +18,7 @@ test-nextest:
 
 # Run cross-compiled and emulated tests
 test-emu:
-	TARGET=armv7-unknown-linux-gnueabihf ./scripts/test-emu.sh
+	TARGET=aarch64-unknown-linux-gnu ./scripts/test-emu.sh
 
 # Run coverage analysis
 cov:
@@ -47,12 +47,11 @@ install-deps:
 
 # Build for ARM targets
 build-arm:
-	cargo build --target armv7-unknown-linux-gnueabihf --release
 	cargo build --target aarch64-unknown-linux-gnu --release
 
 # Run emulated binary with healthcheck
 run-emu:
-	TARGET=armv7-unknown-linux-gnueabihf MODE=release ./scripts/run-emu.sh
+	TARGET=aarch64-unknown-linux-gnu MODE=release ./scripts/run-emu.sh
 
 # Update snapshot tests
 update-snapshots:
