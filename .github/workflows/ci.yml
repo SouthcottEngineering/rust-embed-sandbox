@@ -35,6 +35,7 @@ jobs:
           cargo install cargo-nextest --locked || echo "cargo-nextest installation failed"
           cargo install grcov --locked || echo "grcov installation failed"
           rustup component add llvm-tools-preview
+          rustup component add rustfmt
 
       - name: Cache cargo registry
         uses: actions/cache@v4
