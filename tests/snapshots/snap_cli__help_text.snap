@@ -1,0 +1,13 @@
+---
+source: tests/snap_cli.rs
+expression: text
+---
+Rust application for Raspberry Pi with comprehensive testing
+
+Usage: my-rust-pi-app [OPTIONS]
+
+Options:
+      --healthcheck  Run health check and exit
+      --self-test    Run self-test without real hardware
+  -h, --help         Print help
+  -V, --version      Print version

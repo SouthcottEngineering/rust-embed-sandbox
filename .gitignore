@@ -1,0 +1,24 @@
+# Rust build artifacts
+/target
+Cargo.lock
+
+# Coverage files
+*.profraw
+lcov.info
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test artifacts
+/tmp

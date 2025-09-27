@@ -1,0 +1,28 @@
+---
+source: tests/snap_cli.rs
+expression: "serde_json::to_string_pretty(&json_without_timestamp).unwrap()"
+---
+{
+  "self_test_results": {
+    "diagnostics": [
+      {
+        "details": "Pin 1 set to HIGH",
+        "status": "pass",
+        "test": "gpio_write"
+      },
+      {
+        "details": "Pin 1 state: true",
+        "status": "pass",
+        "test": "gpio_read"
+      },
+      {
+        "details": "Pin 1 write count: 1",
+        "status": "pass",
+        "test": "call_counting"
+      }
+    ],
+    "failed": 0,
+    "passed": 3,
+    "total_tests": 3
+  }
+}
