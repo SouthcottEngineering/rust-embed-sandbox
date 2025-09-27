@@ -12,12 +12,14 @@ env:
 jobs:
   build-test:
     runs-on: ubuntu-24.04
+    permissions:
+      packages: read
     container:
-      image: ubuntu:24.04
+      image: ghcr.io/p-s-dev/rust-embed-sandbox/rust-aarch64-ci:1.80-bk
       env:
-        HOME: /root
-        CARGO_HOME: /root/.cargo
-        RUSTUP_HOME: /root/.rustup
+        HOME: /home/ci
+        CARGO_HOME: /home/ci/.cargo
+        RUSTUP_HOME: /home/ci/.rustup
     strategy:
       matrix:
         target: [aarch64-unknown-linux-gnu]
@@ -26,24 +28,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install system dependencies
-        run: |
-          apt-get update
-          apt-get install -y curl build-essential pkg-config gcc-aarch64-linux-gnu libusb-1.0-0-dev ca-certificates qemu-user-static binfmt-support lcov bc
-
-      - name: Install Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-          rustup target add aarch64-unknown-linux-gnu
-
       - name: Add Cargo to PATH
         run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Install Rust tools
-        run: |
-          rustup component add llvm-tools-preview
-          rustup component add rustfmt
-          rustup component add clippy
+      - name: Install Rust target
+        run: rustup target add aarch64-unknown-linux-gnu
 
       - name: Install prebuilt tools
         uses: taiki-e/install-action@v2
