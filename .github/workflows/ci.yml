@@ -53,7 +53,7 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
 
       - name: Unit/Integration tests (host)
-        run: cargo nextest run --all --profile ci
+        run: cargo nextest run --all
 
       - name: Build for target
         run: cargo build --target ${{ matrix.target }} --release
