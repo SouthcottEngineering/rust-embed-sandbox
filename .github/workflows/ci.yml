@@ -37,7 +37,7 @@ jobs:
           rustup component add llvm-tools-preview
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -45,7 +45,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache target directory
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: target
           key: ${{ runner.os }}-target-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload coverage reports
         if: matrix.target == 'armv7-unknown-linux-gnueabihf'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: |
