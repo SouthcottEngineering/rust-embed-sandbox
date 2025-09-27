@@ -11,7 +11,9 @@ env:
 
 jobs:
   build-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:24.04
     strategy:
       matrix:
         target: [aarch64-unknown-linux-gnu]
@@ -20,26 +22,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support gcc-aarch64-linux-gnu lcov
+          apt-get update
+          apt-get install -y curl build-essential pkg-config gcc-aarch64-linux-gnu libusb-1.0-0-dev ca-certificates qemu-user-static binfmt-support lcov bc
+
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          . "$HOME/.cargo/env"
+          rustup target add aarch64-unknown-linux-gnu
 
       - name: Install Rust tools
         run: |
+          . "$HOME/.cargo/env"
           rustup component add llvm-tools-preview
           rustup component add rustfmt
           rustup component add clippy
 
       - name: Install prebuilt tools
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-nextest@0.9.104,grcov@0.8.18
+        run: |
+          . "$HOME/.cargo/env"
+          curl -LsSf https://github.com/taiki-e/install-action/releases/latest/download/install-action-x86_64-unknown-linux-gnu.tar.gz | tar xzf - -C /usr/local/bin
+          install-action cargo-nextest@0.9.104
+          install-action grcov@0.8.18
 
       - name: Cache Rust build artifacts
         uses: Swatinem/rust-cache@v2
@@ -47,20 +54,29 @@ jobs:
           cache-all-crates: true
 
       - name: Format check
-        run: cargo fmt --all -- --check
+        run: |
+          . "$HOME/.cargo/env"
+          cargo fmt --all -- --check
 
       - name: Clippy check
-        run: cargo clippy --all-targets -- -D warnings
+        run: |
+          . "$HOME/.cargo/env"
+          cargo clippy --all-targets -- -D warnings
 
       - name: Unit/Integration tests (host)
-        run: cargo nextest run --all
+        run: |
+          . "$HOME/.cargo/env"
+          cargo nextest run --all
 
       - name: Build for target
-        run: cargo build --target ${{ matrix.target }} --release
+        run: |
+          . "$HOME/.cargo/env"
+          cargo build --target ${{ matrix.target }} --release
 
       - name: Emulated healthcheck
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
+          . "$HOME/.cargo/env"
           export TARGET=${{ matrix.target }}
           export MODE=release
           ./scripts/run-emu.sh
@@ -68,6 +84,7 @@ jobs:
       - name: Coverage analysis (host only)
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
+          . "$HOME/.cargo/env"
           LLVM_PROFILE_FILE="cov-%p-%m.profraw" RUSTFLAGS="-Zinstrument-coverage" cargo test
           grcov . -s . -t lcov --binary-path target -o lcov.info --ignore "/*" --ignore "target/*"
           genhtml -o coverage lcov.info || echo "genhtml failed"
