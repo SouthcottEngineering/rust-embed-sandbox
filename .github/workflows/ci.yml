@@ -32,25 +32,19 @@ jobs:
 
       - name: Install Rust tools
         run: |
-          cargo install cargo-nextest --locked || echo "cargo-nextest installation failed"
-          cargo install grcov --locked || echo "grcov installation failed"
           rustup component add llvm-tools-preview
           rustup component add rustfmt
           rustup component add clippy
 
-      - name: Cache cargo registry
-        uses: actions/cache@v4
+      - name: Install prebuilt tools
+        uses: taiki-e/install-action@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          tool: cargo-nextest@0.9.104,grcov@0.8.18
 
-      - name: Cache target directory
-        uses: actions/cache@v4
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
         with:
-          path: target
-          key: ${{ runner.os }}-target-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          cache-all-crates: true
 
       - name: Format check
         run: cargo fmt --all -- --check
@@ -59,12 +53,7 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
 
       - name: Unit/Integration tests (host)
-        run: |
-          if command -v cargo-nextest > /dev/null 2>&1; then
-            cargo nextest run --profile ci
-          else
-            cargo test
-          fi
+        run: cargo nextest run --all --profile ci
 
       - name: Build for target
         run: cargo build --target ${{ matrix.target }} --release
@@ -79,7 +68,7 @@ jobs:
         if: matrix.target == 'armv7-unknown-linux-gnueabihf'
         run: |
           LLVM_PROFILE_FILE="cov-%p-%m.profraw" RUSTFLAGS="-Zinstrument-coverage" cargo test
-          grcov . -s . -t lcov --binary-path ./target/debug/ -o lcov.info --ignore "/*" --ignore "target/*"
+          grcov . -s . -t lcov --binary-path target -o lcov.info --ignore "/*" --ignore "target/*"
           genhtml -o coverage lcov.info || echo "genhtml failed"
 
       - name: Enforce coverage threshold
