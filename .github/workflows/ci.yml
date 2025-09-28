@@ -17,10 +17,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run CI in devcontainer
+      - name: Run CI in devcontainer (no push)
         uses: devcontainers/ci@v0.3
         with:
           configFile: .devcontainer/devcontainer.json
+          push: never
           runCmd: |
             rustup show
             rustup target list --installed
