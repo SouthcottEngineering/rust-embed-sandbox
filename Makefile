@@ -1,4 +1,4 @@
-.PHONY: check test test-emu cov clean install-deps
+.PHONY: check test test-emu cov cov-grcov clean install-deps
 
 # Default target
 all: check test
@@ -20,17 +20,42 @@ test-nextest:
 test-emu:
 	TARGET=aarch64-unknown-linux-gnu ./scripts/test-emu.sh
 
-# Run coverage analysis
+# Run coverage analysis using cargo-llvm-cov
 cov:
-	RUSTFLAGS="-Zinstrument-coverage" LLVM_PROFILE_FILE="cov-%p-%m.profraw" \
-	  cargo test
-	grcov . -s . -t lcov --binary-path ./target/debug/ -o lcov.info --ignore "/*" --ignore "target/*"
-	@echo "Coverage report generated in lcov.info"
+	@echo "[cov] Ensuring nightly toolchain is installed..."
+	@rustup toolchain install nightly --component llvm-tools-preview 2>/dev/null || true
+	@echo "[cov] Ensuring cargo-llvm-cov is installed..."
+	@cargo install cargo-llvm-cov --quiet || true
+	@echo "[cov] Cleaning previous coverage artifacts..."
+	@rm -f cov-*.profraw lcov.info
+	@rm -rf coverage/
+	@echo "[cov] Running tests with coverage instrumentation..."
+	@cargo +nightly llvm-cov --workspace --all-features --lcov --output-path lcov.info --ignore-filename-regex '(/.cargo/|/tests/.*/snapshots/)'
+	@echo "[cov] Coverage report generated in lcov.info"
 	@if command -v genhtml > /dev/null 2>&1; then \
-		genhtml -o coverage lcov.info && echo "HTML coverage report generated in coverage/"; \
+		echo "[cov] Generating HTML coverage report..."; \
+		genhtml lcov.info --output-directory coverage --branch-coverage && echo "[cov] HTML coverage report generated in coverage/"; \
 	else \
-		echo "Install lcov (genhtml) to generate HTML coverage report"; \
+		echo "[cov] Install lcov (genhtml) to generate HTML coverage report"; \
 	fi
+
+# Alternative coverage using grcov (legacy approach - commented out by default)
+# Uncomment and use 'make cov-grcov' if you prefer the old grcov-based workflow
+# cov-grcov:
+# 	@echo "[cov-grcov] Using legacy grcov approach (requires nightly)..."
+# 	@rustup toolchain install nightly --component llvm-tools-preview 2>/dev/null || true
+# 	@cargo install grcov --quiet || true
+# 	@rm -f cov-*.profraw lcov.info
+# 	@rm -rf coverage/
+# 	@RUSTFLAGS="-Zinstrument-coverage" LLVM_PROFILE_FILE="cov-%p-%m.profraw" \
+# 	  cargo +nightly test
+# 	@grcov . -s . -t lcov --binary-path ./target/debug/ -o lcov.info --ignore "/*" --ignore "target/*"
+# 	@echo "[cov-grcov] Coverage report generated in lcov.info"
+# 	@if command -v genhtml > /dev/null 2>&1; then \
+# 		genhtml -o coverage lcov.info && echo "[cov-grcov] HTML coverage report generated in coverage/"; \
+# 	else \
+# 		echo "[cov-grcov] Install lcov (genhtml) to generate HTML coverage report"; \
+# 	fi
 
 # Clean build artifacts
 clean:
