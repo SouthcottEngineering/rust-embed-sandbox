@@ -2,10 +2,22 @@
 FROM debian:bookworm-slim
 
 # Basics + build toolchain + aarch64 cross + qemu emulation
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl build-essential pkg-config \
-      gcc-aarch64-linux-gnu qemu-user-static binfmt-support \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -e; \
+      apt-get update; \
+      apt-get install -y --no-install-recommends \
+        ca-certificates curl build-essential pkg-config qemu-user-static binfmt-support; \
+      arch="$(dpkg --print-architecture)"; \
+      if [ "$arch" = "amd64" ]; then \
+      apt-get install -y --no-install-recommends \
+        gcc-aarch64-linux-gnu libc6-dev-arm64-cross libgcc-12-dev-arm64-cross; \
+      elif [ "$arch" = "arm64" ]; then \
+      apt-get install -y --no-install-recommends \
+        gcc libc6-dev; \
+      # (native aarch64; no -cross packages needed) \
+      else \
+      echo "Unsupported arch: $arch" && exit 1; \
+      fi; \
+      rm -rf /var/lib/apt/lists/*
 
 # Non-root user
 RUN groupadd -g 1001 ci && useradd -m -u 1001 -g 1001 ci
