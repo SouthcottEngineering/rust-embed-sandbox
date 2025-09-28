@@ -1,11 +1,11 @@
 # .devcontainer/Dockerfile
 FROM debian:bookworm-slim
 
-# Basics + build toolchain + aarch64 cross + qemu emulation
+# Basics + build toolchain + aarch64 cross + qemu emulation + lcov for HTML coverage reports
 RUN set -e; \
       apt-get update; \
       apt-get install -y --no-install-recommends \
-        ca-certificates curl build-essential pkg-config qemu-user qemu-user-static binfmt-support; \
+        ca-certificates curl build-essential pkg-config qemu-user qemu-user-static binfmt-support lcov; \
       arch="$(dpkg --print-architecture)"; \
       if [ "$arch" = "amd64" ]; then \
         apt-get install -y --no-install-recommends \
