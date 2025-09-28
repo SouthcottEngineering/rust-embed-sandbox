@@ -22,7 +22,8 @@ jobs:
         with:
           configFile: .devcontainer/devcontainer.json
           runCmd: |
-            make install-deps
+            rustup show
+            rustup target list --installed
             make check
             make test
             make build-arm
