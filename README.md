@@ -28,9 +28,6 @@ Open in VS Code dev container for a pre-configured environment:
 ### Local Development
 
 ```bash
-# Install dependencies
-make install-deps
-
 # Run checks (format + clippy)
 make check
 
