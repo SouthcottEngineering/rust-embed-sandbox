@@ -5,17 +5,17 @@ FROM debian:bookworm-slim
 RUN set -e; \
       apt-get update; \
       apt-get install -y --no-install-recommends \
-        ca-certificates curl build-essential pkg-config qemu-user-static binfmt-support; \
+        ca-certificates curl build-essential pkg-config qemu-user qemu-user-static binfmt-support; \
       arch="$(dpkg --print-architecture)"; \
       if [ "$arch" = "amd64" ]; then \
-      apt-get install -y --no-install-recommends \
-        gcc-aarch64-linux-gnu libc6-dev-arm64-cross libgcc-12-dev-arm64-cross; \
+        apt-get install -y --no-install-recommends \
+          gcc-aarch64-linux-gnu libc6-dev-arm64-cross libgcc-12-dev-arm64-cross; \
       elif [ "$arch" = "arm64" ]; then \
-      apt-get install -y --no-install-recommends \
-        gcc libc6-dev; \
+        apt-get install -y --no-install-recommends \
+          gcc libc6-dev; \
       # (native aarch64; no -cross packages needed) \
       else \
-      echo "Unsupported arch: $arch" && exit 1; \
+        echo "Unsupported arch: $arch" && exit 1; \
       fi; \
       rm -rf /var/lib/apt/lists/*
 
