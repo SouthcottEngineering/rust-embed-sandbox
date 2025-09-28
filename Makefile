@@ -30,7 +30,7 @@ cov:
 	@rm -f cov-*.profraw lcov.info
 	@rm -rf coverage/
 	@echo "[cov] Running tests with coverage instrumentation..."
-	@cargo +nightly llvm-cov --workspace --all-features --lcov --output-path lcov.info --ignore-filename-regex '(/.cargo/|/tests/.*/snapshots/)'
+	@cargo +nightly llvm-cov --workspace --all-features --fail-under-lines 75 --lcov --output-path lcov.info --ignore-filename-regex '(/.cargo/|/tests/.*/snapshots/)'
 	@echo "[cov] Coverage report generated in lcov.info"
 	@if command -v genhtml > /dev/null 2>&1; then \
 		echo "[cov] Generating HTML coverage report..."; \
